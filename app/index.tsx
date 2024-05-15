@@ -5,6 +5,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { hp, wp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
+import { router } from "expo-router";
 
 const Page = () => {
   return (
@@ -45,7 +46,10 @@ const Page = () => {
           </Animated.Text>
 
           <Animated.View entering={FadeInDown.delay(600).springify()}>
-            <Pressable style={styles.startButton}>
+            <Pressable
+              onPress={() => router.push("home")}
+              style={styles.startButton}
+            >
               <Text style={styles.startText}>Start Explore</Text>
             </Pressable>
           </Animated.View>
