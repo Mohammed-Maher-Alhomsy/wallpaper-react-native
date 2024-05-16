@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Text,
   View,
@@ -11,17 +11,36 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather, FontAwesome6, Ionicons } from "@expo/vector-icons";
 
+import { Hit } from "@/types";
+import { apiCall } from "@/api";
 import { theme } from "@/constants/theme";
 import { hp, wp } from "@/helpers/common";
 import Categories from "@/components/Categories";
 
 const Page = () => {
   const [search, setSearch] = useState("");
+  const [images, setImages] = useState<Hit[]>([]);
   const searchInputRef = useRef<TextInput | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const handleChangeCategory = (value: string | null) => {
     setActiveCategory(value);
+  };
+
+  useEffect(() => {
+    fetchImages();
+  }, []);
+
+  const fetchImages = async (params = { page: 1 }, append = true) => {
+    let res = await apiCall(params);
+
+    if (res.success && res.data?.hits) {
+      if (append) {
+        setImages((prev) => [...prev, ...res.data?.hits]);
+      } else {
+        setImages([...res.data.hits]);
+      }
+    }
   };
 
   return (

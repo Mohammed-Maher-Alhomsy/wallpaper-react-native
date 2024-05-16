@@ -1,7 +1,9 @@
-import { theme } from "@/constants/theme";
-import { hp } from "@/helpers/common";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
+
 import Animated, { FadeInRight } from "react-native-reanimated";
+
+import { hp } from "@/helpers/common";
+import { theme } from "@/constants/theme";
 
 type Props = {
   index: number;
