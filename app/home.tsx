@@ -13,10 +13,16 @@ import { Feather, FontAwesome6, Ionicons } from "@expo/vector-icons";
 
 import { theme } from "@/constants/theme";
 import { hp, wp } from "@/helpers/common";
+import Categories from "@/components/Categories";
 
 const Page = () => {
   const [search, setSearch] = useState("");
   const searchInputRef = useRef<TextInput | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  const handleChangeCategory = (value: string | null) => {
+    setActiveCategory(value);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -61,6 +67,13 @@ const Page = () => {
               />
             </Pressable>
           )}
+        </View>
+
+        <View style={styles.categories}>
+          <Categories
+            activeCategoty={activeCategory}
+            onChange={handleChangeCategory}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -115,4 +128,6 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.sm,
     backgroundColor: theme.colors.neutral(0.1),
   },
+
+  categories: {},
 });
