@@ -15,6 +15,7 @@ import { Hit } from "@/types";
 import { apiCall } from "@/api";
 import { theme } from "@/constants/theme";
 import { hp, wp } from "@/helpers/common";
+import ImageGrid from "@/components/ImageGrid";
 import Categories from "@/components/Categories";
 
 const Page = () => {
@@ -31,7 +32,7 @@ const Page = () => {
     fetchImages();
   }, []);
 
-  const fetchImages = async (params = { page: 1 }, append = true) => {
+  const fetchImages = async (params = { page: 1 }, append = false) => {
     let res = await apiCall(params);
 
     if (res.success && res.data?.hits) {
@@ -94,6 +95,8 @@ const Page = () => {
             onChange={handleChangeCategory}
           />
         </View>
+
+        <View>{images.length > 0 && <ImageGrid images={images} />}</View>
       </ScrollView>
     </SafeAreaView>
   );
