@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Text,
   View,
@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 
+import { debounce } from "lodash";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather, FontAwesome6, Ionicons } from "@expo/vector-icons";
 
@@ -17,6 +18,8 @@ import { theme } from "@/constants/theme";
 import { hp, wp } from "@/helpers/common";
 import ImageGrid from "@/components/ImageGrid";
 import Categories from "@/components/Categories";
+
+let page = 1;
 
 const Page = () => {
   const [search, setSearch] = useState("");
@@ -44,6 +47,28 @@ const Page = () => {
     }
   };
 
+  const handleSearch = (text: string) => {
+    setSearch(text);
+
+    if (text.length > 2) {
+      page = 1;
+
+      setImages([]);
+      // @ts-ignore
+      fetchImages({ page, q: text });
+    }
+
+    if (text === "") {
+      page = 1;
+      searchInputRef.current?.clear();
+
+      setImages([]);
+      fetchImages({ page });
+    }
+  };
+
+  const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -64,22 +89,25 @@ const Page = () => {
         <View style={styles.searchBar}>
           <View style={styles.searchIcon}>
             <Feather
-              name="search"
               size={24}
+              name="search"
               color={theme.colors.neutral(0.4)}
             />
           </View>
 
           <TextInput
-            value={search}
+            // value={search}
             ref={searchInputRef}
-            onChangeText={setSearch}
             style={styles.searchInput}
+            onChangeText={handleTextDebounce}
             placeholder="Search fot photo..."
           />
 
           {search && (
-            <Pressable style={styles.closeIcon}>
+            <Pressable
+              style={styles.closeIcon}
+              onPress={() => handleSearch("")}
+            >
               <Ionicons
                 name="close"
                 size={24}
