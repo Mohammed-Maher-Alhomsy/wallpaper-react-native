@@ -27,8 +27,19 @@ const Page = () => {
   const searchInputRef = useRef<TextInput | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  const handleChangeCategory = (value: string | null) => {
-    setActiveCategory(value);
+  const handleChangeCategory = (cat: string | null) => {
+    setActiveCategory(cat);
+    clearSearch();
+    setImages([]);
+
+    page = 1;
+    const params = new Map();
+    params.set("page", page);
+
+    if (cat) params.set("category", cat);
+
+    const paramsObj = Object.fromEntries(params);
+    fetchImages(paramsObj, false);
   };
 
   useEffect(() => {
@@ -54,8 +65,9 @@ const Page = () => {
       page = 1;
 
       setImages([]);
+      setActiveCategory(null);
       // @ts-ignore
-      fetchImages({ page, q: text });
+      fetchImages({ page, q: text }, false);
     }
 
     if (text === "") {
@@ -63,8 +75,14 @@ const Page = () => {
       searchInputRef.current?.clear();
 
       setImages([]);
-      fetchImages({ page });
+      setActiveCategory(null);
+      fetchImages({ page }, false);
     }
+  };
+
+  const clearSearch = () => {
+    setSearch("");
+    searchInputRef.current?.clear();
   };
 
   const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
