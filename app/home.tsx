@@ -9,6 +9,7 @@ import {
 } from "react-native";
 
 import { debounce } from "lodash";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather, FontAwesome6, Ionicons } from "@expo/vector-icons";
 
@@ -18,6 +19,7 @@ import { theme } from "@/constants/theme";
 import { hp, wp } from "@/helpers/common";
 import ImageGrid from "@/components/ImageGrid";
 import Categories from "@/components/Categories";
+import FilterModal from "@/components/FilterModal";
 
 let page = 1;
 
@@ -25,6 +27,7 @@ const Page = () => {
   const [search, setSearch] = useState("");
   const [images, setImages] = useState<Hit[]>([]);
   const searchInputRef = useRef<TextInput | null>(null);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const handleChangeCategory = (cat: string | null) => {
@@ -87,6 +90,10 @@ const Page = () => {
 
   const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
 
+  const openFilterModal = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -94,10 +101,10 @@ const Page = () => {
           <Text style={styles.title}>Piexels</Text>
         </Pressable>
 
-        <Pressable>
+        <Pressable onPress={openFilterModal}>
           <FontAwesome6
-            name="bars-staggered"
             size={22}
+            name="bars-staggered"
             color={theme.colors.neutral(0.7)}
           />
         </Pressable>
@@ -119,6 +126,7 @@ const Page = () => {
             style={styles.searchInput}
             onChangeText={handleTextDebounce}
             placeholder="Search fot photo..."
+            placeholderTextColor="black"
           />
 
           {search && (
@@ -144,6 +152,8 @@ const Page = () => {
 
         <View>{images.length > 0 && <ImageGrid images={images} />}</View>
       </ScrollView>
+
+      <FilterModal modalRef={bottomSheetModalRef} />
     </SafeAreaView>
   );
 };
