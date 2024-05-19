@@ -6,6 +6,7 @@ import {
   TextInput,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 
 import { debounce } from "lodash";
@@ -13,8 +14,8 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather, FontAwesome6, Ionicons } from "@expo/vector-icons";
 
-import { Filter, Hit } from "@/types";
 import { apiCall } from "@/api";
+import { Filter, Hit } from "@/types";
 import { theme } from "@/constants/theme";
 import { hp, wp } from "@/helpers/common";
 import ImageGrid from "@/components/ImageGrid";
@@ -39,6 +40,13 @@ const Page = () => {
     page = 1;
     const params = new Map();
     params.set("page", page);
+
+    if (filters) {
+      params.set("colors", filters.colors);
+      params.set("order", filters.order);
+      params.set("orientation", filters.orientation);
+      params.set("image_type", filters.type);
+    }
 
     if (cat) params.set("category", cat);
 
@@ -71,7 +79,7 @@ const Page = () => {
       setImages([]);
       setActiveCategory(null);
       // @ts-ignore
-      fetchImages({ page, q: text }, false);
+      fetchImages({ page, q: text, ...filters }, false);
     }
 
     if (text === "") {
@@ -80,7 +88,7 @@ const Page = () => {
 
       setImages([]);
       setActiveCategory(null);
-      fetchImages({ page }, false);
+      fetchImages({ page, ...filters }, false);
     }
   };
 
@@ -100,12 +108,39 @@ const Page = () => {
   }, []);
 
   const applyFilters = () => {
-    console.log("Apply filters");
+    if (filters) {
+      page = 1;
+      setImages([]);
+
+      const params = new Map();
+      params.set("page", page);
+      params.set("colors", filters.colors);
+      params.set("order", filters.order);
+      params.set("orientation", filters.orientation);
+      params.set("image_type", filters.type);
+
+      if (activeCategory) params.set("category", activeCategory);
+      if (search) params.set("q", search);
+
+      const paramsObj = Object.fromEntries(params);
+      fetchImages(paramsObj, false);
+    }
     closeFilterModal();
   };
 
   const resetFilters = () => {
-    console.log("Reset filters");
+    if (filters) {
+      setFilters(null);
+      setImages([]);
+      const params = new Map();
+      params.set("page", page);
+
+      if (activeCategory) params.set("category", activeCategory);
+      if (search) params.set("q", search);
+
+      const paramsObj = Object.fromEntries(params);
+      fetchImages(paramsObj, false);
+    }
     closeFilterModal();
   };
 
@@ -166,6 +201,12 @@ const Page = () => {
         </View>
 
         <View>{images.length > 0 && <ImageGrid images={images} />}</View>
+
+        <View
+          style={{ marginBottom: 70, marginTop: images.length > 0 ? 10 : 70 }}
+        >
+          <ActivityIndicator size="large" />
+        </View>
       </ScrollView>
 
       <FilterModal

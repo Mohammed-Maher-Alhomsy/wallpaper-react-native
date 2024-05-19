@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 
@@ -72,6 +72,25 @@ const FilterModal = ({
               </View>
             );
           })}
+
+          <View style={styles.buttons}>
+            <Pressable style={styles.resetButton} onPress={onReset}>
+              <Text
+                style={[
+                  styles.buttonText,
+                  { color: theme.colors.neutral(0.9) },
+                ]}
+              >
+                Reset
+              </Text>
+            </Pressable>
+
+            <Pressable style={styles.applyButton} onPress={onApply}>
+              <Text style={[styles.buttonText, { color: theme.colors.white }]}>
+                Apply
+              </Text>
+            </Pressable>
+          </View>
         </View>
       </BottomSheetView>
     </BottomSheetModal>
@@ -88,7 +107,7 @@ const styles = StyleSheet.create({
 
   content: {
     // flex: 1,
-    width: "100%",
+    // width: "100%",
     gap: 15,
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -99,5 +118,38 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: theme.colors.neutral(0.8),
     fontWeight: theme.fontWeights.semibold as "600",
+  },
+
+  buttons: {
+    flex: 1,
+    gap: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  buttonText: {
+    fontSize: hp(2.2),
+  },
+
+  applyButton: {
+    flex: 1,
+    padding: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    borderCurve: "continuous",
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.neutral(0.8),
+  },
+
+  resetButton: {
+    flex: 1,
+    padding: 12,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    borderCurve: "continuous",
+    borderRadius: theme.radius.md,
+    borderColor: theme.colors.grayBG,
+    backgroundColor: theme.colors.neutral(0.03),
   },
 });
