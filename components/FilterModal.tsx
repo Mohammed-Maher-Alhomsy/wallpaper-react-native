@@ -3,15 +3,31 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 
-import CustomBackdrop from "./CustomBackdrop";
-import { hp } from "@/helpers/common";
+import SectionView from "./SectionView";
+import { data } from "@/constants/data";
 import { theme } from "@/constants/theme";
+import CustomBackdrop from "./CustomBackdrop";
+import CommonFilterRow from "./CommonFilterRow";
+import { capitalize, hp } from "@/helpers/common";
+import { Filter, FilterName, Section } from "@/types";
 
 type Props = {
+  filters: Filter | null;
   modalRef: React.RefObject<BottomSheetModal>;
+  setFilters: React.Dispatch<React.SetStateAction<Filter | null>>;
+  onClose: () => void;
+  onApply: () => void;
+  onReset: () => void;
 };
 
-const FilterModal = ({ modalRef }: Props) => {
+const FilterModal = ({
+  modalRef,
+  onClose,
+  onApply,
+  onReset,
+  filters,
+  setFilters,
+}: Props) => {
   const snapPoints = useMemo(() => ["75%"], []);
 
   return (
@@ -27,11 +43,37 @@ const FilterModal = ({ modalRef }: Props) => {
       <BottomSheetView style={styles.contentContainer}>
         <View style={styles.content}>
           <Text style={styles.filterText}>Filters</Text>
-          <Text style={styles.filterText}>Sections here</Text>
+          {Object.keys(sections).map((sectionName, index) => {
+            let title = capitalize(sectionName);
+            let filterName = sectionName as FilterName;
+            let sectionView = sections[sectionName as FilterName];
+            let sectionData = data.filters[sectionName as FilterName];
+
+            return (
+              <View key={sectionName}>
+                <SectionView
+                  title={title}
+                  content={sectionView({
+                    filters,
+                    setFilters,
+                    filterName,
+                    data: sectionData,
+                  })}
+                />
+              </View>
+            );
+          })}
         </View>
       </BottomSheetView>
     </BottomSheetModal>
   );
+};
+
+const sections = {
+  order: (props: Section) => <CommonFilterRow {...props} />,
+  orientation: (props: Section) => <CommonFilterRow {...props} />,
+  type: (props: Section) => <CommonFilterRow {...props} />,
+  colors: (props: Section) => <CommonFilterRow {...props} />,
 };
 
 export default FilterModal;

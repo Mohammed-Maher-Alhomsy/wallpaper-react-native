@@ -29,3 +29,19 @@ export type Hit = {
   user: string;
   userImageURL: string;
 };
+
+export type Filter = {
+  type?: string;
+  order?: string;
+  colors?: string;
+  orientation?: string;
+};
+
+export type FilterName = "order" | "orientation" | "type" | "colors";
+
+export type Section = {
+  data: string[];
+  filters: Filter | null;
+  filterName: FilterName;
+  setFilters: React.Dispatch<React.SetStateAction<Filter | null>>;
+};

@@ -13,7 +13,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather, FontAwesome6, Ionicons } from "@expo/vector-icons";
 
-import { Hit } from "@/types";
+import { Filter, Hit } from "@/types";
 import { apiCall } from "@/api";
 import { theme } from "@/constants/theme";
 import { hp, wp } from "@/helpers/common";
@@ -26,8 +26,9 @@ let page = 1;
 const Page = () => {
   const [search, setSearch] = useState("");
   const [images, setImages] = useState<Hit[]>([]);
+  const modalRef = useRef<BottomSheetModal>(null);
   const searchInputRef = useRef<TextInput | null>(null);
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const [filters, setFilters] = useState<Filter | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const handleChangeCategory = (cat: string | null) => {
@@ -91,8 +92,22 @@ const Page = () => {
   const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
 
   const openFilterModal = useCallback(() => {
-    bottomSheetModalRef.current?.present();
+    modalRef.current?.present();
   }, []);
+
+  const closeFilterModal = useCallback(() => {
+    modalRef.current?.close();
+  }, []);
+
+  const applyFilters = () => {
+    console.log("Apply filters");
+    closeFilterModal();
+  };
+
+  const resetFilters = () => {
+    console.log("Reset filters");
+    closeFilterModal();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -153,7 +168,14 @@ const Page = () => {
         <View>{images.length > 0 && <ImageGrid images={images} />}</View>
       </ScrollView>
 
-      <FilterModal modalRef={bottomSheetModalRef} />
+      <FilterModal
+        filters={filters}
+        modalRef={modalRef}
+        onApply={applyFilters}
+        onReset={resetFilters}
+        setFilters={setFilters}
+        onClose={closeFilterModal}
+      />
     </SafeAreaView>
   );
 };
