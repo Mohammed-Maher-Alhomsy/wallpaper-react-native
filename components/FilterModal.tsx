@@ -11,6 +11,7 @@ import CustomBackdrop from "./CustomBackdrop";
 import CommonFilterRow from "./CommonFilterRow";
 import { capitalize, hp } from "@/helpers/common";
 import { Filter, FilterName, Section } from "@/types";
+import Animated, { FadeInUp } from "react-native-reanimated";
 
 type Props = {
   filters: Filter | null;
@@ -59,7 +60,12 @@ const FilterModal = ({
             let sectionData = data.filters[sectionName as FilterName];
 
             return (
-              <View key={sectionName}>
+              <Animated.View
+                entering={FadeInUp.duration(400 * (index + 1))
+                  .delay(300 * (index + 1))
+                  .springify()}
+                key={sectionName}
+              >
                 <SectionView
                   title={title}
                   content={sectionView({
@@ -69,11 +75,14 @@ const FilterModal = ({
                     data: sectionData,
                   })}
                 />
-              </View>
+              </Animated.View>
             );
           })}
 
-          <View style={styles.buttons}>
+          <Animated.View
+            entering={FadeInUp.duration(400).delay(1500).springify()}
+            style={styles.buttons}
+          >
             <Pressable style={styles.resetButton} onPress={onReset}>
               <Text
                 style={[
@@ -90,7 +99,7 @@ const FilterModal = ({
                 Apply
               </Text>
             </Pressable>
-          </View>
+          </Animated.View>
         </View>
       </BottomSheetView>
     </BottomSheetModal>
