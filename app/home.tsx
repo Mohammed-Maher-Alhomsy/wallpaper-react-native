@@ -15,7 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather, FontAwesome6, Ionicons } from "@expo/vector-icons";
 
 import { apiCall } from "@/api";
-import { Filter, Hit } from "@/types";
+import { Filter, FilterName, Hit } from "@/types";
 import { theme } from "@/constants/theme";
 import { hp, wp } from "@/helpers/common";
 import ImageGrid from "@/components/ImageGrid";
@@ -144,6 +144,30 @@ const Page = () => {
     closeFilterModal();
   };
 
+  const clearThisFilter = (filterName: FilterName) => {
+    const newFilter = { ...filters };
+    delete newFilter[filterName];
+
+    setFilters({ ...newFilter });
+    setImages([]);
+    page = 1;
+
+    const params = new Map();
+    params.set("page", page);
+    if (filters) {
+      params.set("colors", filters.colors);
+      params.set("order", filters.order);
+      params.set("orientation", filters.orientation);
+      params.set("image_type", filters.type);
+    }
+
+    if (activeCategory) params.set("category", activeCategory);
+    if (search) params.set("q", search);
+
+    const paramsObj = Object.fromEntries(params);
+    fetchImages(paramsObj, false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -193,12 +217,52 @@ const Page = () => {
           )}
         </View>
 
-        <View style={styles.categories}>
+        <View>
           <Categories
             activeCategoty={activeCategory}
             onChange={handleChangeCategory}
           />
         </View>
+
+        {filters && (
+          <View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filers}
+            >
+              {Object.keys(filters).map((key) => (
+                <View key={key} style={styles.filterItem}>
+                  {key === "colors" ? (
+                    <View
+                      style={{
+                        height: 20,
+                        width: 30,
+                        borderRadius: 7,
+                        backgroundColor: filters[key],
+                      }}
+                    />
+                  ) : (
+                    <Text style={styles.filterItemText}>
+                      {filters[key as FilterName]}
+                    </Text>
+                  )}
+
+                  <Pressable
+                    style={styles.filterCloseIcon}
+                    onPress={() => clearThisFilter(key as FilterName)}
+                  >
+                    <Ionicons
+                      name="close"
+                      size={14}
+                      color={theme.colors.neutral(0.9)}
+                    />
+                  </Pressable>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         <View>{images.length > 0 && <ImageGrid images={images} />}</View>
 
@@ -270,5 +334,28 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.neutral(0.1),
   },
 
-  categories: {},
+  filers: {
+    paddingHorizontal: wp(4),
+    gap: 10,
+  },
+
+  filterItem: {
+    padding: 8,
+    gap: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    borderRadius: theme.radius.xs,
+    backgroundColor: theme.colors.grayBG,
+  },
+
+  filterItemText: {
+    fontSize: hp(1.9),
+  },
+
+  filterCloseIcon: {
+    padding: 4,
+    borderRadius: 7,
+    backgroundColor: theme.colors.neutral(0.2),
+  },
 });
