@@ -5,6 +5,7 @@ import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 
 import SectionView from "./SectionView";
 import { data } from "@/constants/data";
+import ColorFilter from "./ColorFilter";
 import { theme } from "@/constants/theme";
 import CustomBackdrop from "./CustomBackdrop";
 import CommonFilterRow from "./CommonFilterRow";
@@ -18,6 +19,13 @@ type Props = {
   onClose: () => void;
   onApply: () => void;
   onReset: () => void;
+};
+
+const sections = {
+  order: (props: Section) => <CommonFilterRow {...props} />,
+  orientation: (props: Section) => <CommonFilterRow {...props} />,
+  type: (props: Section) => <CommonFilterRow {...props} />,
+  colors: (props: Section) => <ColorFilter {...props} />,
 };
 
 const FilterModal = ({
@@ -36,6 +44,7 @@ const FilterModal = ({
       ref={modalRef}
       snapPoints={snapPoints}
       enablePanDownToClose={true}
+      backgroundStyle={{ backgroundColor: "#d9d9d9" }}
       backdropComponent={({ style, animatedIndex }) => (
         <CustomBackdrop style={style} animatedIndex={animatedIndex} />
       )}
@@ -67,13 +76,6 @@ const FilterModal = ({
       </BottomSheetView>
     </BottomSheetModal>
   );
-};
-
-const sections = {
-  order: (props: Section) => <CommonFilterRow {...props} />,
-  orientation: (props: Section) => <CommonFilterRow {...props} />,
-  type: (props: Section) => <CommonFilterRow {...props} />,
-  colors: (props: Section) => <CommonFilterRow {...props} />,
 };
 
 export default FilterModal;
