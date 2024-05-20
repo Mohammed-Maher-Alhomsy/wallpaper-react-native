@@ -7,6 +7,8 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from "react-native";
 
 import { debounce } from "lodash";
@@ -15,12 +17,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather, FontAwesome6, Ionicons } from "@expo/vector-icons";
 
 import { apiCall } from "@/api";
-import { Filter, FilterName, Hit } from "@/types";
 import { theme } from "@/constants/theme";
 import { hp, wp } from "@/helpers/common";
 import ImageGrid from "@/components/ImageGrid";
 import Categories from "@/components/Categories";
+import { Filter, FilterName, Hit } from "@/types";
 import FilterModal from "@/components/FilterModal";
+import FiltersSection from "@/components/FiltersSection";
 
 let page = 1;
 
@@ -28,7 +31,9 @@ const Page = () => {
   const [search, setSearch] = useState("");
   const [images, setImages] = useState<Hit[]>([]);
   const modalRef = useRef<BottomSheetModal>(null);
+  const scrollRef = useRef<ScrollView | null>(null);
   const searchInputRef = useRef<TextInput | null>(null);
+  const [isEndReached, setIsEndReached] = useState(false);
   const [filters, setFilters] = useState<Filter | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
@@ -114,10 +119,10 @@ const Page = () => {
 
       const params = new Map();
       params.set("page", page);
-      params.set("colors", filters.colors);
       params.set("order", filters.order);
-      params.set("orientation", filters.orientation);
+      params.set("colors", filters.colors);
       params.set("image_type", filters.type);
+      params.set("orientation", filters.orientation);
 
       if (activeCategory) params.set("category", activeCategory);
       if (search) params.set("q", search);
@@ -168,10 +173,48 @@ const Page = () => {
     fetchImages(paramsObj, false);
   };
 
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const contentHeight = e.nativeEvent.contentSize.height;
+    const scrollViewHeight = e.nativeEvent.layoutMeasurement.height;
+    const scrollOffset = e.nativeEvent.contentOffset.y;
+
+    const bottomPosition = contentHeight - scrollViewHeight;
+
+    if (scrollOffset >= bottomPosition - 1) {
+      if (!isEndReached) {
+        ++page;
+        setIsEndReached(true);
+
+        const params = new Map();
+        params.set("page", page);
+
+        if (filters) {
+          params.set("colors", filters.colors);
+          params.set("order", filters.order);
+          params.set("orientation", filters.orientation);
+          params.set("image_type", filters.type);
+        }
+
+        if (activeCategory) params.set("category", activeCategory);
+        if (search) params.set("q", search);
+
+        const paramsObj = Object.fromEntries(params);
+
+        fetchImages(paramsObj, true);
+      }
+    } else if (isEndReached) {
+      setIsEndReached(false);
+    }
+  };
+
+  const handleScrollUp = () => {
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Pressable>
+        <Pressable onPress={handleScrollUp}>
           <Text style={styles.title}>Piexels</Text>
         </Pressable>
 
@@ -184,7 +227,12 @@ const Page = () => {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={{ gap: 15 }}>
+      <ScrollView
+        ref={scrollRef}
+        onScroll={handleScroll}
+        scrollEventThrottle={5}
+        contentContainerStyle={{ gap: 15 }}
+      >
         <View style={styles.searchBar}>
           <View style={styles.searchIcon}>
             <Feather
@@ -195,7 +243,6 @@ const Page = () => {
           </View>
 
           <TextInput
-            // value={search}
             ref={searchInputRef}
             style={styles.searchInput}
             onChangeText={handleTextDebounce}
@@ -206,7 +253,7 @@ const Page = () => {
           {search && (
             <Pressable
               style={styles.closeIcon}
-              onPress={() => handleSearch("")}
+              onPress={handleSearch.bind(this, "")}
             >
               <Ionicons
                 name="close"
@@ -225,43 +272,7 @@ const Page = () => {
         </View>
 
         {filters && (
-          <View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filers}
-            >
-              {Object.keys(filters).map((key) => (
-                <View key={key} style={styles.filterItem}>
-                  {key === "colors" ? (
-                    <View
-                      style={{
-                        height: 20,
-                        width: 30,
-                        borderRadius: 7,
-                        backgroundColor: filters[key],
-                      }}
-                    />
-                  ) : (
-                    <Text style={styles.filterItemText}>
-                      {filters[key as FilterName]}
-                    </Text>
-                  )}
-
-                  <Pressable
-                    style={styles.filterCloseIcon}
-                    onPress={() => clearThisFilter(key as FilterName)}
-                  >
-                    <Ionicons
-                      name="close"
-                      size={14}
-                      color={theme.colors.neutral(0.9)}
-                    />
-                  </Pressable>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
+          <FiltersSection filters={filters} onClearFilters={clearThisFilter} />
         )}
 
         <View>{images.length > 0 && <ImageGrid images={images} />}</View>
@@ -332,30 +343,5 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: theme.radius.sm,
     backgroundColor: theme.colors.neutral(0.1),
-  },
-
-  filers: {
-    paddingHorizontal: wp(4),
-    gap: 10,
-  },
-
-  filterItem: {
-    padding: 8,
-    gap: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    borderRadius: theme.radius.xs,
-    backgroundColor: theme.colors.grayBG,
-  },
-
-  filterItemText: {
-    fontSize: hp(1.9),
-  },
-
-  filterCloseIcon: {
-    padding: 4,
-    borderRadius: 7,
-    backgroundColor: theme.colors.neutral(0.2),
   },
 });

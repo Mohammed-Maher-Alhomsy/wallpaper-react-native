@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import Animated, { FadeInUp } from "react-native-reanimated";
+import { BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 
 import SectionView from "./SectionView";
 import { data } from "@/constants/data";
@@ -11,7 +12,6 @@ import CustomBackdrop from "./CustomBackdrop";
 import CommonFilterRow from "./CommonFilterRow";
 import { capitalize, hp } from "@/helpers/common";
 import { Filter, FilterName, Section } from "@/types";
-import Animated, { FadeInUp } from "react-native-reanimated";
 
 type Props = {
   filters: Filter | null;
@@ -50,7 +50,7 @@ const FilterModal = ({
         <CustomBackdrop style={style} animatedIndex={animatedIndex} />
       )}
     >
-      <BottomSheetView style={styles.contentContainer}>
+      <BottomSheetScrollView style={styles.contentContainer}>
         <View style={styles.content}>
           <Text style={styles.filterText}>Filters</Text>
           {Object.keys(sections).map((sectionName, index) => {
@@ -101,7 +101,7 @@ const FilterModal = ({
             </Pressable>
           </Animated.View>
         </View>
-      </BottomSheetView>
+      </BottomSheetScrollView>
     </BottomSheetModal>
   );
 };
@@ -111,7 +111,7 @@ export default FilterModal;
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
-    alignItems: "center",
+    // alignItems: "center",
   },
 
   content: {
@@ -134,6 +134,7 @@ const styles = StyleSheet.create({
     gap: 10,
     flexDirection: "row",
     alignItems: "center",
+    marginVertical: 30,
   },
 
   buttonText: {
