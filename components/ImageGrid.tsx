@@ -1,6 +1,7 @@
 import { StyleSheet, View } from "react-native";
 
 import { MasonryFlashList } from "@shopify/flash-list";
+import { ExpoRouter } from "expo-router/types/expo-router";
 
 import { Hit } from "@/types";
 import ImageCard from "./ImageCard";
@@ -8,9 +9,10 @@ import { getColumnCount, wp } from "@/helpers/common";
 
 type Props = {
   images: Hit[];
+  router: ExpoRouter.Router;
 };
 
-const ImageGrid = ({ images }: Props) => {
+const ImageGrid = ({ images, router }: Props) => {
   const columnCount = getColumnCount();
 
   return (
@@ -20,7 +22,12 @@ const ImageGrid = ({ images }: Props) => {
         estimatedItemSize={200}
         numColumns={columnCount}
         renderItem={({ item, index }) => (
-          <ImageCard index={index} item={item} columns={columnCount} />
+          <ImageCard
+            item={item}
+            index={index}
+            router={router}
+            columns={columnCount}
+          />
         )}
         contentContainerStyle={styles.listContainerStyle}
       />

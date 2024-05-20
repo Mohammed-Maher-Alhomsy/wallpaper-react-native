@@ -1,7 +1,6 @@
 import { Stack } from "expo-router";
 
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const RootLayout = () => {
@@ -15,7 +14,15 @@ const RootLayout = () => {
           }}
         >
           <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="home" options={{ headerShown: false }} />
+          <Stack.Screen name="home/index" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="home/image"
+            options={{
+              animation: "fade",
+              headerShown: false,
+              presentation: "transparentModal",
+            }}
+          />
         </Stack>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>

@@ -24,10 +24,12 @@ import Categories from "@/components/Categories";
 import { Filter, FilterName, Hit } from "@/types";
 import FilterModal from "@/components/FilterModal";
 import FiltersSection from "@/components/FiltersSection";
+import { useRouter } from "expo-router";
 
 let page = 1;
 
 const Page = () => {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [images, setImages] = useState<Hit[]>([]);
   const modalRef = useRef<BottomSheetModal>(null);
@@ -275,7 +277,9 @@ const Page = () => {
           <FiltersSection filters={filters} onClearFilters={clearThisFilter} />
         )}
 
-        <View>{images.length > 0 && <ImageGrid images={images} />}</View>
+        <View>
+          {images.length > 0 && <ImageGrid router={router} images={images} />}
+        </View>
 
         <View
           style={{ marginBottom: 70, marginTop: images.length > 0 ? 10 : 70 }}
